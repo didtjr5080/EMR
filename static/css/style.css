@@ -1,0 +1,103 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f6fa;
+    color: #222;
+}
+.sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 200px;
+    background: #1a2747;
+    color: #fff;
+    padding: 24px 0;
+}
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 32px;
+    color: #fff;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar ul li {
+    margin: 16px 0;
+}
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 24px;
+    display: block;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.sidebar ul li a:hover {
+    background: #24305e;
+}
+.main {
+    margin-left: 220px;
+    padding: 32px 40px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.header-title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.header-date {
+    color: #888;
+    font-size: 1em;
+}
+.content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.emr-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+}
+.emr-table th, .emr-table td {
+    border: 1px solid #e0e0e0;
+    padding: 10px 8px;
+    text-align: left;
+}
+.emr-table th {
+    background: #f0f4fa;
+}
+.badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.95em;
+    font-weight: bold;
+}
+.badge-pending {
+    background: #f7b731;
+}
+.badge-completed {
+    background: #20bf6b;
+}
+form input, form select, form button {
+    margin: 0 8px 8px 0;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+form button {
+    background: #1a2747;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+form button:hover {
+    background: #24305e;
+}

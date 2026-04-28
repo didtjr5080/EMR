@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}EMR 관리자 시스템{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>EMR</h2>
+        <ul>
+            <li><a href="/">대시보드</a></li>
+            <li><a href="/patients">환자 관리</a></li>
+            <li><a href="/tasks">업무 관리</a></li>
+            <li><a href="/logs">완료 기록</a></li>
+        </ul>
+    </div>
+    <div class="main">
+        <div class="header">
+            <div class="header-title">{% block header %}{% endblock %}</div>
+            <div class="header-date">{{ now.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}대시보드{% endblock %}
+{% block header %}대시보드{% endblock %}
+{% block content %}
+<h3>환자별 업무 현황</h3>
+<table class="emr-table">
+    <thead>
+        <tr>
+            <th>환자명</th>
+            <th>병실</th>
+            <th>업무명</th>
+            <th>예정시간</th>
+            <th>상태</th>
+            <th>마지막 변경</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+        <tr>
+            <td>{{ task.patient.patient_name if task.patient else '' }}</td>
+            <td>{{ task.patient.room_number if task.patient else '' }}</td>
+            <td>{{ task.task_name }}</td>
+            <td>{{ task.scheduled_time.strftime('%Y-%m-%d %H:%M') if task.scheduled_time else '' }}</td>
+            <td><span class="badge {{ 'badge-pending' if task.status=='pending' else 'badge-completed' }}">{{ task.status }}</span></td>
+            <td>{{ task.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

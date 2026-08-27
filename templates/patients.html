@@ -1,28 +1,45 @@
 {% extends 'base.html' %}
+
 {% block title %}환자 관리{% endblock %}
 {% block header %}환자 관리{% endblock %}
+
 {% block content %}
-<h3>환자 목록</h3>
+<div class="section-title">
+    <h2>환자 등록</h2>
+    <span>Firestore patients 컬렉션에 저장됩니다.</span>
+</div>
+
+<form class="emr-form" method="post" action="/api/patients">
+    <input type="text" name="patient_name" placeholder="환자명" required>
+    <input type="text" name="room_number" placeholder="병실 예: 101" required>
+    <input type="text" name="patient_code" placeholder="환자코드 예: P001">
+    <button type="submit">환자 등록</button>
+</form>
+
+<div class="section-title">
+    <h2>환자 목록</h2>
+</div>
+
 <table class="emr-table">
     <thead>
-        <tr><th>이름</th><th>병실</th><th>코드</th><th>등록일</th></tr>
+        <tr>
+            <th>문서 ID</th>
+            <th>병실</th>
+            <th>환자명</th>
+            <th>환자코드</th>
+            <th>등록일</th>
+        </tr>
     </thead>
     <tbody>
     {% for p in patients %}
         <tr>
-            <td>{{ p.patient_name }}</td>
-            <td>{{ p.room_number }}</td>
-            <td>{{ p.patient_code }}</td>
-            <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td class="small">{{ p.get('id', '') }}</td>
+            <td>{{ p.get('room_number', '') }}</td>
+            <td><strong>{{ p.get('patient_name', '') }}</strong></td>
+            <td>{{ p.get('patient_code', '-') }}</td>
+            <td><script>document.write(formatKoreanDateTime(`{{ p.get('created_at_kst', '-') }}`));</script></td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
-<h3>환자 등록</h3>
-<form method="post" action="/api/patients">
-    <input type="text" name="patient_name" placeholder="이름" required>
-    <input type="text" name="room_number" placeholder="병실" required>
-    <input type="text" name="patient_code" placeholder="코드" required>
-    <button type="submit">등록</button>
-</form>
 {% endblock %}

@@ -1,7 +1,9 @@
 fastapi
 uvicorn
 jinja2
-sqlalchemy
-pydantic
-aiofiles
+firebase-admin
 python-multipart
+aiofiles
+tzdata
+qrcode[pil]
+reportlab

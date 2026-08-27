@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}자주 쓰는 업무{% endblock %}
+{% block header %}자주 쓰는 업무{% endblock %}
+
+{% block content %}
+<div class="section-title">
+    <h2>자주 쓰는 업무 관리</h2>
+    <span>업무 등록 화면에서 클릭으로 불러올 preset을 관리합니다.</span>
+</div>
+
+<div class="preset-panel">
+    <div class="preset-header">
+        <div>
+            <h3>기본 업무 자동 추가</h3>
+            <p>활력징후 측정, 항생제 투여, 수액 라인 확인 등 기본 preset을 생성합니다.</p>
+        </div>
+
+        <form method="post" action="/api/task-presets/seed">
+            <button class="secondary-button" type="submit">기본 업무 자동 추가</button>
+        </form>
+    </div>
+</div>
+
+<div class="section-title">
+    <h2>자주 쓰는 업무 직접 등록</h2>
+    <span>반복적으로 사용하는 업무를 저장합니다.</span>
+</div>
+
+<form class="emr-form preset-form" method="post" action="/api/task-presets">
+    <input type="text" name="task_name" placeholder="자주 쓰는 업무명" required>
+
+    <select name="priority">
+        <option value="1">1순서</option>
+        <option value="2">2순서</option>
+        <option value="3">3순서</option>
+        <option value="4">4순서</option>
+        <option value="5">5순서</option>
+        <option value="6">6순서</option>
+        <option value="7">7순서</option>
+        <option value="8">8순서</option>
+        <option value="9">9순서</option>
+        <option value="10">10순서</option>
+    </select>
+
+    <input type="text" name="assigned_to" placeholder="기본 담당자">
+    <textarea name="description" placeholder="업무 설명"></textarea>
+
+    <button type="submit">자주 쓰는 업무 저장</button>
+</form>
+
+<div class="section-title">
+    <h2>등록된 자주 쓰는 업무</h2>
+    <span>업무 등록 화면에서 버튼으로 표시됩니다.</span>
+</div>
+
+<table class="emr-table">
+    <thead>
+        <tr>
+            <th>업무명</th>
+            <th>업무 순서</th>
+            <th>기본 담당자</th>
+            <th>설명</th>
+            <th>삭제</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for preset in presets %}
+        <tr>
+            <td><strong>{{ preset.get('task_name', '-') }}</strong></td>
+            <td>{{ preset.get('priority', '-') }}</td>
+            <!-- 날짜 필드가 있다면 아래처럼 사용하세요 (예시)
+            <td><script>document.write(formatKoreanDateTime(`{{ preset.get('created_at_kst', '-') }}`));</script></td>
+            -->
+            <td>{{ preset.get('assigned_to', '-') }}</td>
+            <td>{{ preset.get('description', '-') }}</td>
+            <td>
+                <form method="post"
+                      action="/api/task-presets/{{ preset.get('id') }}/delete"
+                      onsubmit="return confirm('이 자주 쓰는 업무를 삭제할까요?');">
+                    <button class="danger-button" type="submit">삭제</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="5" class="muted">등록된 자주 쓰는 업무가 없습니다.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="action-row">
+    <a class="secondary-link-button" href="/tasks">업무 관리 화면으로 이동</a>
+</div>
+{% endblock %}

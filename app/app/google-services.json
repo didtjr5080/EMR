@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "949060335226",
+    "project_id": "reders-d1646",
+    "storage_bucket": "reders-d1646.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949060335226:android:25261b3507d53fdfae6dc3",
+        "android_client_info": {
+          "package_name": "com.example.emr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuRSkWQ0PTJxeJTinE-_grb8UGtDbz_Kw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,23 +1,125 @@
 {% extends 'base.html' %}
+
 {% block title %}완료 기록{% endblock %}
 {% block header %}완료 기록{% endblock %}
+
 {% block content %}
-<h3>업무 완료 기록</h3>
+<div class="section-title">
+    <h2>처치완료 시간 기록</h2>
+    <span id="logStatusText">2초마다 자동 갱신됩니다.</span>
+</div>
+
 <table class="emr-table">
     <thead>
-        <tr><th>환자명</th><th>업무명</th><th>완료자</th><th>기기ID</th><th>완료시간</th><th>비고</th></tr>
+        <tr>
+            <th>환자 등록 번호</th>
+            <th>병실</th>
+            <th>환자명</th>
+            <th>업무명</th>
+            <th>업무 순서</th>
+            <th>완료시간</th>
+            <th>완료자</th>
+            <th>기기 ID</th>
+            <th>비고</th>
+        </tr>
     </thead>
-    <tbody>
+
+    <tbody id="logsTableBody">
     {% for log in logs %}
         <tr>
-            <td>{{ log.task.patient.patient_name if log.task and log.task.patient else '' }}</td>
-            <td>{{ log.task.task_name if log.task else '' }}</td>
-            <td>{{ log.completed_by }}</td>
-            <td>{{ log.device_id }}</td>
-            <td>{{ log.completed_at.strftime('%Y-%m-%d %H:%M:%S') if log.completed_at else '' }}</td>
-            <td>{{ log.note }}</td>
+            <td>{{ log.get('patient_code', '-') }}</td>
+            <td>{{ log.get('room_number', '-') }}</td>
+            <td>{{ log.get('patient_name', '-') }}</td>
+            <td>{{ log.get('task_name', '-') }}</td>
+            <td>{{ log.get('priority', '-') }}</td>
+            <td><strong>{{ log.get('completed_at_kst', '-') }}</strong></td>
+            <td>{{ log.get('completed_by', '-') }}</td>
+            <td>{{ log.get('device_id', '-') }}</td>
+            <td>{{ log.get('note', '-') }}</td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="9" class="muted">완료 기록이 없습니다.</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
+
+<script>
+let lastLogSnapshot = "";
+
+function escapeHtml(value) {
+    if (value === null || value === undefined || value === "") {
+        return "-";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function renderLogs(logs) {
+    const tbody = document.getElementById("logsTableBody");
+
+    if (!logs || logs.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="muted">완료 기록이 없습니다.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = logs.map(log => `
+        <tr>
+            <td>${escapeHtml(log.patient_code)}</td>
+            <td>${escapeHtml(log.room_number)}</td>
+            <td>${escapeHtml(log.patient_name)}</td>
+            <td>${escapeHtml(log.task_name)}</td>
+            <td>${escapeHtml(log.priority)}</td>
+            <td><strong>${formatKoreanDateTime(log.completed_at_kst)}</strong></td>
+            <td>${escapeHtml(log.completed_by)}</td>
+            <td>${escapeHtml(log.device_id)}</td>
+            <td>${escapeHtml(log.note)}</td>
+        </tr>
+    `).join("");
+}
+
+async function refreshLogs() {
+    const statusText = document.getElementById("logStatusText");
+
+    try {
+        const response = await fetch("/api/task-logs", {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const logs = await response.json();
+        const currentSnapshot = JSON.stringify(logs);
+
+        if (currentSnapshot !== lastLogSnapshot) {
+            renderLogs(logs);
+            lastLogSnapshot = currentSnapshot;
+        }
+
+        const now = new Date();
+        statusText.textContent =
+            `자동 갱신 중 · 마지막 갱신 ${now.toLocaleTimeString()}`;
+
+    } catch (error) {
+        statusText.textContent = `갱신 실패: ${error.message}`;
+        console.error("Failed to refresh logs:", error);
+    }
+}
+
+refreshLogs();
+setInterval(refreshLogs, 2000);
+</script>
 {% endblock %}

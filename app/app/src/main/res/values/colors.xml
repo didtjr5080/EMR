@@ -1,0 +1,9 @@
+<resources>
+    <color name="emr_blue">#1D4ED8</color>
+    <color name="emr_navy">#172033</color>
+    <color name="emr_background">#EEF1F5</color>
+    <color name="emr_text">#111827</color>
+    <color name="emr_muted">#64748B</color>
+    <color name="emr_pending">#F59E0B</color>
+    <color name="emr_completed">#10B981</color>
+</resources>

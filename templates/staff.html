@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}담당자 관리{% endblock %}
+{% block header %}담당자 관리{% endblock %}
+
+{% block content %}
+<div class="section-title">
+    <h2>담당자 등록</h2>
+    <span>등록된 담당자 코드는 Android 앱에서 QR/바코드 입력값으로 사용됩니다.</span>
+</div>
+
+<form class="emr-form staff-form" method="post" action="/api/staff">
+    <input type="text" name="staff_name" placeholder="담당자명 예: 홍길동" required>
+    <input type="text" name="staff_code" placeholder="담당자 코드 예: NURSE001" required>
+    <input type="text" name="role" placeholder="역할 예: 간호사">
+    <input type="text" name="department" placeholder="부서/병동 예: 33병동">
+    <button type="submit">담당자 등록</button>
+</form>
+
+<div class="section-title">
+    <h2>담당자 목록</h2>
+    <span>QR PDF를 출력해 Android 앱에서 스캔할 수 있습니다.</span>
+</div>
+
+<table class="emr-table">
+    <thead>
+        <tr>
+            <th>담당자 코드</th>
+            <th>담당자명</th>
+            <th>역할</th>
+            <th>부서/병동</th>
+            <th>등록일</th>
+            <th>QR PDF</th>
+            <th>삭제</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for s in staff_list %}
+        <tr>
+            <td><strong>{{ s.get('staff_code', '-') }}</strong></td>
+            <td>{{ s.get('staff_name', '-') }}</td>
+            <td>{{ s.get('role', '-') }}</td>
+            <td>{{ s.get('department', '-') }}</td>
+            <td><script>document.write(formatKoreanDateTime(`{{ s.get('created_at_kst', '-') }}`));</script></td>
+            <td>
+                <a class="secondary-link-button"
+                   href="/api/staff/{{ s.get('id') }}/qr-pdf"
+                   target="_blank">
+                    QR PDF 출력
+                </a>
+            </td>
+            <td>
+                <form method="post"
+                      action="/api/staff/{{ s.get('id') }}/delete"
+                      onsubmit="return confirm('이 담당자를 비활성화할까요?');">
+                    <button class="danger-button" type="submit">삭제</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="7" class="muted">등록된 담당자가 없습니다.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="section-title">
+    <h2>사용 방법</h2>
+    <span>담당자 코드와 업무의 담당자 코드가 일치해야 앱에 표시됩니다.</span>
+</div>
+
+<div class="info-box">
+    <p><strong>1.</strong> 담당자를 등록합니다. 예: 홍길동 / NURSE001</p>
+    <p><strong>2.</strong> QR PDF를 출력합니다.</p>
+    <p><strong>3.</strong> 업무 등록 시 담당자 코드에 NURSE001을 입력합니다.</p>
+    <p><strong>4.</strong> Android 앱에서 NURSE001을 입력하거나 QR/바코드를 스캔하면 해당 담당자의 업무만 표시됩니다.</p>
+</div>
+{% endblock %}

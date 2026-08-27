@@ -1,34 +1,279 @@
 {% extends 'base.html' %}
+
 {% block title %}업무 관리{% endblock %}
 {% block header %}업무 관리{% endblock %}
+
 {% block content %}
-<h3>업무 목록</h3>
+<div class="section-title">
+    <h2>처치 업무 등록</h2>
+    <span>환자와 담당자를 선택한 뒤 업무를 등록합니다.</span>
+</div>
+
+<div class="preset-panel">
+    <div class="preset-header">
+        <div>
+            <h3>자주 쓰는 업무</h3>
+            <p>버튼을 누르면 아래 업무 등록 폼에 자동 입력됩니다.</p>
+        </div>
+
+        <a class="secondary-link-button" href="/task-presets">자주 쓰는 업무 관리</a>
+    </div>
+
+    <div class="preset-button-grid">
+        {% for preset in presets %}
+        <button
+            type="button"
+            class="preset-button"
+            data-task-name="{{ preset.get('task_name', '') }}"
+            data-description="{{ preset.get('description', '') }}"
+            data-priority="{{ preset.get('priority', '1') }}"
+            data-assigned-to="{{ preset.get('assigned_to', '') }}"
+            onclick="applyPreset(this)"
+        >
+            <strong>{{ preset.get('task_name', '') }}</strong>
+            <span>{{ preset.get('priority', '-') }}순서</span>
+        </button>
+        {% else %}
+        <div class="empty-box">
+            등록된 자주 쓰는 업무가 없습니다.
+            <a href="/task-presets">자주 쓰는 업무 페이지에서 추가하세요.</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<form class="emr-form grid-form" method="post" action="/api/tasks">
+    <select name="patient_id" required>
+        <option value="">환자 선택</option>
+        {% for p in patients %}
+        <option value="{{ p.get('id') }}">
+            {{ p.get('patient_code') }} / {{ p.get('room_number') }}호 / {{ p.get('patient_name') }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <input id="taskNameInput" type="text" name="task_name" placeholder="업무명 예: 항생제 투여" required>
+
+    <select id="priorityInput" name="priority">
+        <option value="1">1순서</option>
+        <option value="2">2순서</option>
+        <option value="3">3순서</option>
+        <option value="4">4순서</option>
+        <option value="5">5순서</option>
+        <option value="6">6순서</option>
+        <option value="7">7순서</option>
+        <option value="8">8순서</option>
+        <option value="9">9순서</option>
+        <option value="10">10순서</option>
+    </select>
+
+    <select id="assignedStaffSelect" onchange="setAssignedStaffFromSelect()" required>
+        <option value="">담당자 선택</option>
+        {% for s in staff_list %}
+        <option
+            value="{{ s.get('staff_code', '') }}"
+            data-name="{{ s.get('staff_name', '') }}"
+            data-code="{{ s.get('staff_code', '') }}"
+        >
+            {{ s.get('staff_name', '-') }} / {{ s.get('staff_code', '-') }}
+            {% if s.get('department') %}
+                / {{ s.get('department') }}
+            {% endif %}
+        </option>
+        {% endfor %}
+    </select>
+
+    <input id="assignedToInput" type="hidden" name="assigned_to">
+    <input id="assignedToCodeInput" type="hidden" name="assigned_to_code">
+
+    <textarea id="descriptionInput" name="description" placeholder="업무 상세 설명"></textarea>
+
+    <button type="submit">업무 등록</button>
+</form>
+
+{% if not staff_list %}
+<div class="empty-box">
+    등록된 담당자가 없습니다.
+    <a href="/staff">담당자 관리 페이지에서 먼저 담당자를 등록하세요.</a>
+</div>
+{% endif %}
+
+<div class="section-title">
+    <h2>업무 목록</h2>
+    <span id="taskStatusText">처치완료 상태는 자동 갱신됩니다.</span>
+</div>
+
 <table class="emr-table">
     <thead>
-        <tr><th>환자명</th><th>업무명</th><th>예정시간</th><th>상태</th><th>수정</th></tr>
+        <tr>
+            <th>환자 등록 번호</th>
+            <th>병실</th>
+            <th>환자명</th>
+            <th>업무명</th>
+            <th>업무 순서</th>
+            <th>담당자</th>
+            <th>담당자 코드</th>
+            <th>업무 완료 여부</th>
+            <th>삭제</th>
+        </tr>
     </thead>
-    <tbody>
+
+    <tbody id="tasksTableBody">
     {% for t in tasks %}
         <tr>
-            <td>{{ t.patient.patient_name if t.patient else '' }}</td>
-            <td>{{ t.task_name }}</td>
-            <td>{{ t.scheduled_time.strftime('%Y-%m-%d %H:%M') if t.scheduled_time else '' }}</td>
-            <td><span class="badge {{ 'badge-pending' if t.status=='pending' else 'badge-completed' }}">{{ t.status }}</span></td>
-            <td><!-- 수정/삭제 기능은 JS로 구현 가능 --></td>
+            <td>{{ t.get('patient_code', '-') }}</td>
+            <td>{{ t.get('room_number', '-') }}</td>
+            <td>{{ t.get('patient_name', '-') }}</td>
+            <td><strong>{{ t.get('task_name', '-') }}</strong></td>
+            <td>{{ t.get('priority', '-') }}</td>
+            <td>{{ t.get('assigned_to', '-') }}</td>
+            <td>{{ t.get('assigned_to_code', '-') }}</td>
+            <td>
+                {% if t.get('status') == 'completed' %}
+                    <span class="badge badge-completed">완료</span>
+                {% else %}
+                    <span class="badge badge-pending">미완료</span>
+                {% endif %}
+            </td>
+            <td>
+                <form method="post"
+                      action="/api/tasks/{{ t.get('id') }}/delete"
+                      onsubmit="return confirm('이 업무를 삭제할까요? 삭제 후 복구할 수 없습니다.');">
+                    <button class="danger-button" type="submit">삭제</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="9" class="muted">등록된 업무가 없습니다.</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
-<h3>업무 등록</h3>
-<form method="post" action="/api/tasks">
-    <select name="patient_id" required>
-        {% for p in patients %}
-        <option value="{{ p.id }}">{{ p.patient_name }} ({{ p.room_number }})</option>
-        {% endfor %}
-    </select>
-    <input type="text" name="task_name" placeholder="업무명" required>
-    <input type="datetime-local" name="scheduled_time">
-    <input type="number" name="priority" value="1" min="1">
-    <button type="submit">등록</button>
-</form>
+
+<script>
+let lastTaskSnapshot = "";
+
+function escapeHtml(value) {
+    if (value === null || value === undefined || value === "") {
+        return "-";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function setAssignedStaffFromSelect() {
+    const select = document.getElementById("assignedStaffSelect");
+    const selectedOption = select.options[select.selectedIndex];
+
+    const staffName = selectedOption.dataset.name || "";
+    const staffCode = selectedOption.dataset.code || "";
+
+    document.getElementById("assignedToInput").value = staffName;
+    document.getElementById("assignedToCodeInput").value = staffCode;
+}
+
+function applyPreset(button) {
+    const taskName = button.dataset.taskName || "";
+    const description = button.dataset.description || "";
+    const priority = button.dataset.priority || "1";
+
+    document.getElementById("taskNameInput").value = taskName;
+    document.getElementById("descriptionInput").value = description;
+    document.getElementById("priorityInput").value = priority;
+
+    document.getElementById("taskNameInput").focus();
+}
+
+function renderTasks(tasks) {
+    const tbody = document.getElementById("tasksTableBody");
+
+    if (!tbody) return;
+
+    if (!tasks || tasks.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="muted">등록된 업무가 없습니다.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = tasks.map(task => {
+        const status = task.status || "pending";
+        const statusBadge = status === "completed"
+            ? `<span class="badge badge-completed">완료</span>`
+            : `<span class="badge badge-pending">미완료</span>`;
+
+        // 완료시간 표시 (있으면)
+        let completedAtCell = "";
+        if (task.completed_at_kst) {
+            completedAtCell = `<div class='muted small'>${formatKoreanDateTime(task.completed_at_kst)}</div>`;
+        }
+
+        return `
+            <tr>
+                <td>${escapeHtml(task.patient_code)}</td>
+                <td>${escapeHtml(task.room_number)}</td>
+                <td>${escapeHtml(task.patient_name)}</td>
+                <td><strong>${escapeHtml(task.task_name)}</strong>${completedAtCell}</td>
+                <td>${escapeHtml(task.priority)}</td>
+                <td>${escapeHtml(task.assigned_to)}</td>
+                <td>${escapeHtml(task.assigned_to_code)}</td>
+                <td>${statusBadge}</td>
+                <td>
+                    <form method="post"
+                          action="/api/tasks/${encodeURIComponent(task.id)}/delete"
+                          onsubmit="return confirm('이 업무를 삭제할까요? 삭제 후 복구할 수 없습니다.');">
+                        <button class="danger-button" type="submit">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function refreshTasks() {
+    const statusText = document.getElementById("taskStatusText");
+
+    try {
+        const response = await fetch("/api/tasks", {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const tasks = await response.json();
+        const currentSnapshot = JSON.stringify(tasks);
+
+        if (currentSnapshot !== lastTaskSnapshot) {
+            renderTasks(tasks);
+            lastTaskSnapshot = currentSnapshot;
+        }
+
+        const now = new Date();
+        if (statusText) {
+            statusText.textContent = `처치완료 상태 자동 갱신 중 · 마지막 갱신 ${now.toLocaleTimeString()}`;
+        }
+
+    } catch (error) {
+        console.error("Failed to refresh tasks:", error);
+
+        if (statusText) {
+            statusText.textContent = `업무 목록 갱신 실패: ${error.message}`;
+        }
+    }
+}
+
+refreshTasks();
+setInterval(refreshTasks, 2000);
+</script>
 {% endblock %}

@@ -2,28 +2,49 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}EMR 관리자 시스템{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script src="/static/js/app.js" defer></script>
+    <title>{% block title %}Firebase EMR 시스템{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/css/style.css?v=5">
+    <script src="/static/js/app.js?v=5" defer></script>
 </head>
+
 <body>
-    <div class="sidebar">
-        <h2>EMR</h2>
-        <ul>
-            <li><a href="/">대시보드</a></li>
-            <li><a href="/patients">환자 관리</a></li>
-            <li><a href="/tasks">업무 관리</a></li>
-            <li><a href="/logs">완료 기록</a></li>
-        </ul>
-    </div>
-    <div class="main">
-        <div class="header">
-            <div class="header-title">{% block header %}{% endblock %}</div>
-            <div class="header-date">{{ now.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">EMR</div>
+            <div>
+                <div class="brand-title">Firebase EMR</div>
+                <div class="brand-subtitle">처치완료 기록</div>
+            </div>
         </div>
-        <div class="content">
+
+        <nav class="nav">
+            <a href="/">대시보드</a>
+            <a href="/patients">환자 관리</a>
+            <a href="/tasks">업무 관리</a>
+            <a href="/task-presets">자주 쓰는 업무</a>
+            <a href="/staff">담당자 관리</a>
+            <a href="/logs">완료 기록</a>
+            <a href="/docs" target="_blank">API 문서</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>{% block header %}{% endblock %}</h1>
+                <p>Firebase Firestore 기반 처치완료 기록 시스템</p>
+            </div>
+
+            <div class="server-time">
+                <span>서버 시간</span>
+                <strong>{{ now }}</strong>
+            </div>
+        </header>
+
+        <section class="content">
             {% block content %}{% endblock %}
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>

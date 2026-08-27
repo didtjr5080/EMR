@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#EEF1F5">
+
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="22dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="오늘의 처치 업무"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#111827" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="담당자 코드를 입력하거나 전면 카메라로 QR을 스캔하세요."
+            android:textSize="14sp"
+            android:textColor="#64748B"
+            android:layout_marginTop="6dp" />
+
+        <EditText
+            android:id="@+id/responsibleCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="담당자 코드 예: NURSE001"
+            android:singleLine="true"
+            android:inputType="text"
+            android:imeOptions="actionDone"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="#F3F6FB"
+            android:layout_marginTop="14dp" />
+
+        <Button
+            android:id="@+id/scanQrButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="전면 카메라 QR/바코드 스캔 시작"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#475569"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/stopScanButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="스캔 중지"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#DC2626"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/loadMyTasksButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="담당자 업무 불러오기"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1D4ED8"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_margin="12dp"
+        android:background="#111827"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/taskRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="18dp" />
+
+</LinearLayout>
